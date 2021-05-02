@@ -20,7 +20,8 @@
             <a class="navbar-brand" href="#">
                 <img src="images/logo.png" alt="Hard Rock Solution">
             </a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavId" aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
+                aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation">
                 <img src="images/toggler-icon.svg" alt="">
             </button>
             <div class="collapse navbar-collapse" id="collapsibleNavId">
@@ -32,7 +33,8 @@
                         <a class="nav-link" href="#">Link</a>
                     </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="dropdownId" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Dropdown</a>
+                        <a class="nav-link dropdown-toggle" href="#" id="dropdownId" data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Dropdown</a>
                         <div class="dropdown-menu" aria-labelledby="dropdownId">
                             <a class="dropdown-item" href="#">Action 1</a>
                             <a class="dropdown-item" href="#">Action 2</a>
@@ -46,24 +48,16 @@
             <div class="search-bar col-md-6 mx-auto">
                 <h1 class="text-center">Hard Rock Lyric Search</h1>
                 <div class="search-box my-5">
-                    <input type="text" class="form-control" placeholder="Enter your artist song name">
-                    <button class="btn btn-success search-btn">Search</button>
+                    <input id="search-title" type="text" class="form-control" placeholder="Enter your artist song name">
+                    <button id="search-btn" class="btn btn-success search-btn">Search</button>
                 </div>
             </div>
             <!-- Single Lyrics -->
-            <div class="single-lyrics text-center">
-                
+            <div id="lyrics" class="single-lyrics text-center text-light">
+
             </div>
-            <div class="search-result col-md-8 mx-auto py-4">
-                <div class="single-result row align-items-center my-3 p-3">
-                    <div class="col-md-9">
-                        <h3 class="lyrics-name">Purple Noon</h3>
-                        <p class="author lead">Album by <span>Washed Out</span></p>
-                    </div>
-                    <div class="col-md-3 text-md-right text-center">
-                        <button class="btn btn-success">Get Lyrics</button>
-                    </div>
-                </div>
+            <div id="lyrics-title-authors" class="search-result col-md-8 mx-auto py-4">
+
             </div>
         </main>
     </div>
@@ -73,7 +67,64 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
 
-    <!-- Custom Script Here -->
+    <script>
+        document.getElementById("search-btn").addEventListener("click", () => {
+            const songTitle = document.getElementById("search-title").value;
+            const url = `https://api.lyrics.ovh/suggest/`
+            fetch(`${url}${songTitle}`)
+                .then(res => res.json())
+                .then(data => {
+                    const lyrics = data.data.slice(0, 10);
+                    const lyricsTitleAuthors = document.getElementById("lyrics-title-authors");
+                    lyricsTitleAuthors.innerHTML = ''
+                    for (let i = 0; i < lyrics.length; i++) {
+                        const lyric = lyrics[i];
+                    
+                        const lyricsTitle = document.createElement("div")
+                        lyricsTitle.setAttribute("id", "ly")
+                        lyricsTitle.innerHTML = `
+                    <div class="single-result row align-items-center my-3 p-3">
+                        <div id="lyrics-title-authors" class="col-md-9">
+                            <h3 id="lyrics-name" class="lyrics-name">${lyric.title}</h3>
+                            <p class="author lead">Album by <span>${lyric.artist.name}</span></p>
+                        </div>
+                        <div class="col-md-3 text-md-right text-center">
+                            <button onclick="getLyrics('${lyric.artist.name}', '${lyric.title}')" class="btn btn-success">Get Lyrics</button>
+                        </div>
+                    </div>
+                    `
+                        lyricsTitleAuthors.appendChild(lyricsTitle);
+                        
+                    }
+
+                })
+
+                document.getElementById("search-title").value = '';
+                document.getElementById("lyrics").innerHTML = '';
+                
+                document.getElementById("lyrics-title-authors").innerHTML = '';
+        })
+
+        function getLyrics(artistName, title) {
+
+
+            fetch(`https://api.lyrics.ovh/v1/${artistName}/${title}`)
+                .then(res => res.json())
+                .then(data => {
+                    
+                    const lyricsTitleAuthors = document.getElementById("lyrics");
+                    const lyrics = document.createElement('div')
+                    lyrics.innerHTML = `<h2 class="text-success">${artistName}</h2><pre class="text-light">${data.lyrics}</pre>`
+                    lyricsTitleAuthors.appendChild(lyrics)
+                  
+                })
+
+                lyrics.innerHTML = ''
+                
+        }
+
+
+    </script>
 
 </body>
 
